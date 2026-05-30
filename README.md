@@ -10,7 +10,7 @@ type Dev struct {
 	devType   string
 	website   url.URL
 	interests []string
-  projects  []string
+  	projects  []string
 }
 
 func WhoAmI() *Dev {
@@ -19,7 +19,7 @@ func WhoAmI() *Dev {
 		devType:   "fullstack software developer",
 		website:   url.URL{Host: "https://dotsem.be"},
 		interests: []string{"APIs", "Websites", "Apps", "System Design", "Linux"},
-    projects:  []string{"GoStrategy", "Carpe Diem", "tuSSHi"},
+    	projects:  []string{"GoStrategy", "Carpe Diem", "tuSSHi"},
 	}
 }
 ```

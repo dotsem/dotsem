@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "node-html-parser": "^9.0.4",
+    "satori": "^0.35.0",
+    "satori-html": "^0.3.2"
+  }
+}

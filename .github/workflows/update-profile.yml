@@ -1,0 +1,49 @@
+name: Update Profile Cards
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-profile:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Render Profile SVGs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun render.ts
+
+      - name: Verify SVG outputs
+        run: |
+          if [ ! -s profile-card-dark.svg ] || [ ! -s profile-card-light.svg ]; then
+            echo "Error: Output SVGs are missing or empty!"
+            exit 1
+          fi
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add profile-card-dark.svg profile-card-light.svg
+          if git diff --staged --quiet; then
+            echo "No updates to commit. Everything is up to date."
+          else
+            git commit -m "chore: daily update profile cards [skip ci]"
+            git push
+          fi

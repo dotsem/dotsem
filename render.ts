@@ -98,8 +98,14 @@ async function fetchRepos(username: string): Promise<Repo[]> {
     headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
   const res = await fetch(`https://api.github.com/users/${username}/repos?sort=pushed&per_page=100`, { headers });
-  if (!res.ok) throw new Error(`GitHub API error: ${res.status} ${res.statusText}`);
-  return (await res.json()) as Repo[];
+  if (!res.ok) {
+    throw new Error(`GitHub API request failed with status: ${res.status} ${res.statusText}`);
+  }
+  const data = await res.json();
+  if (!Array.isArray(data) || data.length === 0) {
+    throw new Error(`GitHub API returned 0 repositories or invalid response for ${username}`);
+  }
+  return data as Repo[];
 }
 
 function calculateLangStats(repos: Repo[], limit = 6): LangStat[] {
@@ -219,8 +225,15 @@ async function main() {
   const repos = allRepos.filter(r => whitelist.size === 0 || whitelist.has(r.name.toLowerCase()));
   repos.sort((a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime());
 
+  if (repos.length < 4) {
+    throw new Error(`Data incomplete: found only ${repos.length} whitelisted repositories, minimum 4 required.`);
+  }
+
   const topProjects = repos.slice(0, 4);
   const topLangs = calculateLangStats(repos, 6);
+  if (topLangs.length < 6) {
+    throw new Error(`Data incomplete: found only ${topLangs.length} languages across whitelisted repositories, expected 6.`);
+  }
 
   const rawTemplate = readFileSync('./card.template.html', 'utf-8');
   const font400 = readFileSync('./fonts/jetbrains-mono-400.ttf');
@@ -242,7 +255,13 @@ async function main() {
 
     svg = svg.replace('<svg width="800" height="330"', '<svg width="100%" height="100%"');
     writeFileSync(theme.outputFile, svg);
-    console.log(`Rendered ${theme.outputFile} (${theme.name})`);
+
+    const written = readFileSync(theme.outputFile, 'utf-8');
+    if (written.length < 1000 || !written.startsWith('<svg') || !written.endsWith('</svg>')) {
+      throw new Error(`Integrity check failed: ${theme.outputFile} is corrupt or improperly generated.`);
+    }
+
+    console.log(`Rendered & verified ${theme.outputFile} (${theme.name})`);
   }
 }
 

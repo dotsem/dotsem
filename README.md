@@ -1,4 +1,4 @@
-<span algin="center">
+<span align="center">
 
 # Sem Van Broekhoven [`dotsem.be`](https://github.com/dotsem)
 

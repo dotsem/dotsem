@@ -1,6 +1,6 @@
 <span align="center">
 
-# Sem Van Broekhoven [`dotsem.be`](https://dotsem.be)
+# Sem Van Broekhoven <a href="https://dotsem.be" target="_blank" rel="noopener noreferrer"><code>dotsem.be</code></a>
 
 Fullstack developer · Linux & systems · Belgium
 </span>

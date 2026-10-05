@@ -1,10 +1,9 @@
 <span align="center">
 
-# Sem Van Broekhoven <a href="https://dotsem.be" target="_blank" rel="noopener noreferrer"><code>dotsem.be</code></a>
+# Sem Van Broekhoven [`dotsem.be ↗`](https://dotsem.be)
 
-Fullstack developer · Linux & systems · Belgium
+Fullstack developer · Making software someone may ever need · Belgium
 </span>
-
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./profile-card-dark.svg">
@@ -14,8 +13,6 @@ Fullstack developer · Linux & systems · Belgium
 
 <span align="center">
 
-<a href="https://dotsem.be/projects" target="_blank" rel="noopener noreferrer">My projects</a> ·
-<a href="https://dotsem.be/blog" target="_blank" rel="noopener noreferrer">Read my blogs</a> ·
-<a href="https://dotsem.be/#contact" target="_blank" rel="noopener noreferrer">Contact me</a>
+[My projects ↗](https://dotsem.be/projects) · [Read my blogs ↗](https://dotsem.be/blog) · [Contact me ↗](https://dotsem.be/#contact)
 
 </span>

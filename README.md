@@ -1,6 +1,6 @@
 <span align="center">
 
-# Sem Van Broekhoven [`dotsem.be`](https://github.com/dotsem)
+# Sem Van Broekhoven [`dotsem.be`](https://dotsem.be)
 
 Fullstack developer · Linux & systems · Belgium
 </span>

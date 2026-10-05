@@ -231,7 +231,7 @@ async function main() {
     const parsed = parse(renderedHtml.trim());
     const vnode = toVNode(parsed.childNodes.find((n: any) => n.nodeType === 1));
 
-    const svg = await satori(vnode, {
+    let svg = await satori(vnode, {
       width: 800,
       height: 330,
       fonts: [
@@ -240,6 +240,7 @@ async function main() {
       ],
     });
 
+    svg = svg.replace('<svg width="800" height="330"', '<svg width="100%" height="100%"');
     writeFileSync(theme.outputFile, svg);
     console.log(`Rendered ${theme.outputFile} (${theme.name})`);
   }

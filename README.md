@@ -13,7 +13,9 @@ Fullstack developer · Linux & systems · Belgium
 </picture>
 
 <span align="center">
+
 <a href="https://dotsem.be/projects" target="_blank" rel="noopener noreferrer">My projects</a> ·
 <a href="https://dotsem.be/blog" target="_blank" rel="noopener noreferrer">Read my blogs</a> ·
 <a href="https://dotsem.be/#contact" target="_blank" rel="noopener noreferrer">Contact me</a>
+
 </span>

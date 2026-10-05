@@ -160,9 +160,10 @@ function buildHtml(templateStr: string, theme: Theme, env: string, projects: Rep
   const projectsHtml = projects.map((p, idx) => {
     let desc = p.description || '';
     if (desc.length > 55) desc = desc.slice(0, 52).trim() + '...';
-    const mb = idx < projects.length - 1 ? '8px' : '0px';
+    const mb = idx < projects.length - 1 ? '6px' : '0px';
+    const langColor = langColors[p.language] || theme.borderInner;
     return `
-      <div style="display: flex; flex-direction: column; background-color: ${theme.panelBg}; border: 1px solid ${theme.borderInner}; padding: 10px; margin-bottom: ${mb};">
+      <div style="display: flex; flex-direction: column; background-color: ${theme.panelBg}; border-width: 1px; border-style: solid; border-color: ${theme.borderInner}; border-right-width: 3px; border-right-color: ${langColor}; padding: 7px 10px; margin-bottom: ${mb};">
         <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
           <span style="color: ${theme.textPrimary}; font-size: 13px; font-weight: 500;">${p.name}</span>
           <span style="color: ${theme.textMuted}; font-size: 11px;">${p.language || ''}</span>
@@ -185,12 +186,12 @@ function buildHtml(templateStr: string, theme: Theme, env: string, projects: Rep
       <div style="display: flex; flex-direction: row; margin-bottom: 4px;">
         <div style="display: flex; align-items: center; width: 144px;">
           <div style="display: flex; width: 8px; height: 8px; background-color: ${l1.color}; margin-right: 6px;"></div>
-          <span>${l1.name} <span style="color: ${theme.textMuted};">${l1.pct}%</span></span>
+          <span>${l1.name} <span style="color: ${theme.textMuted}; margin-left: 4px;">${l1.pct}%</span></span>
         </div>
         ${l2 ? `
         <div style="display: flex; align-items: center; width: 144px;">
           <div style="display: flex; width: 8px; height: 8px; background-color: ${l2.color}; margin-right: 6px;"></div>
-          <span>${l2.name} <span style="color: ${theme.textMuted};">${l2.pct}%</span></span>
+          <span>${l2.name} <span style="color: ${theme.textMuted}; margin-left: 4px;">${l2.pct}%</span></span>
         </div>
         ` : ''}
       </div>
@@ -218,7 +219,7 @@ async function main() {
   const repos = allRepos.filter(r => whitelist.size === 0 || whitelist.has(r.name.toLowerCase()));
   repos.sort((a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime());
 
-  const topProjects = repos.slice(0, 3);
+  const topProjects = repos.slice(0, 4);
   const topLangs = calculateLangStats(repos, 6);
 
   const rawTemplate = readFileSync('./card.template.html', 'utf-8');
@@ -232,7 +233,7 @@ async function main() {
 
     const svg = await satori(vnode, {
       width: 800,
-      height: 300,
+      height: 330,
       fonts: [
         { name: 'JetBrains Mono', data: font400, weight: 400, style: 'normal' },
         { name: 'JetBrains Mono', data: font600, weight: 600, style: 'normal' },

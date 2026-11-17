@@ -1,22 +1,22 @@
 <div
-  style="display: flex; flex-direction: row; justify-content: space-between; width: 800px; height: 330px; background-color: transparent; color: {{TEXT_PRIMARY}}; border: 1px solid {{BORDER_OUTER}}; padding: 20px; font-family: 'JetBrains Mono'; box-sizing: border-box;">
+  style="display: flex; flex-direction: row; justify-content: space-between; width: 800px; height: 370px; background-color: transparent; color: {{TEXT_PRIMARY}}; border: 1px solid {{BORDER_OUTER}}; padding: 20px; font-family: 'JetBrains Mono'; box-sizing: border-box;">
 
   <!-- Left Column: Recent Projects -->
   <div style="display: flex; flex-direction: column; width: 440px;">
     <span
-      style="color: {{TEXT_MUTED}}; font-size: 11px; font-weight: 600; letter-spacing: 1px; margin-bottom: 8px;">RECENTLY
+      style="color: {{ACCENT}}; font-size: 11px; font-weight: 600; letter-spacing: 1px; margin-bottom: 8px;">RECENTLY
       WORKED ON</span>
     {{PROJECTS}}
   </div>
 
   <!-- Middle Divider -->
-  <div style="width: 1px; background-color: {{BORDER_INNER}}; margin: 0 16px; height: 290px;"></div>
+  <div style="width: 1px; background-color: {{ACCENT}}; opacity: 0.35; margin: 0 16px; height: 330px;"></div>
 
   <!-- Right Column: Focus Areas & Languages -->
   <div style="display: flex; flex-direction: column; width: 288px;">
     <!-- Focus Areas -->
     <span
-      style="color: {{TEXT_MUTED}}; font-size: 11px; font-weight: 600; letter-spacing: 1px; margin-bottom: 6px;">FOCUS
+      style="color: {{ACCENT}}; font-size: 11px; font-weight: 600; letter-spacing: 1px; margin-bottom: 6px;">FOCUS
       AREAS</span>
     <div style="display: flex; flex-direction: column; margin-bottom: 14px;">
       <div style="display: flex; align-items: center; margin-bottom: 4px; font-size: 12px;">
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Languages Header -->
-    <span style="color: {{TEXT_MUTED}}; font-size: 11px; font-weight: 600; letter-spacing: 1px; margin-bottom: 6px;">TOP
+    <span style="color: {{ACCENT}}; font-size: 11px; font-weight: 600; letter-spacing: 1px; margin-bottom: 6px;">TOP
       6 LANGUAGES</span>
 
     <!-- Distribution Bar -->
@@ -54,8 +54,9 @@
 
     <!-- Environment Footer -->
     <div
-      style="display: flex; border-top: 1px solid {{BORDER_INNER}}; padding-top: 8px; margin-top: auto; font-size: 11px; color: {{TEXT_MUTED}};">
-      <span>Working on {{ENVIRONMENT}}</span>
+      style="display: flex; flex-direction: column; border-top: 1px solid {{BORDER_INNER}}; padding-top: 8px; margin-top: auto; font-size: 11px; color: {{TEXT_MUTED}};">
+      <span style="margin-bottom: 2px;">Working on {{ENVIRONMENT}}</span>
+      <span>Updated {{DATE}}</span>
     </div>
   </div>
 

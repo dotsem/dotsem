@@ -31,6 +31,7 @@ interface Theme {
   panelBg: string;
   barBg: string;
   accentBullet: string;
+  accent: string;
   outputFile: string;
 }
 
@@ -43,7 +44,8 @@ const themes: Theme[] = [
     borderInner: '#21262d',
     panelBg: '#161b22',
     barBg: '#21262d',
-    accentBullet: '#3fb950',
+    accentBullet: '#7CCB2B',
+    accent: '#FF8700',
     outputFile: './profile-card-dark.svg',
   },
   {
@@ -54,7 +56,8 @@ const themes: Theme[] = [
     borderInner: '#d8dee4',
     panelBg: '#f6f8fa',
     barBg: '#eaeef2',
-    accentBullet: '#1a7f37',
+    accentBullet: '#4C8A12',
+    accent: '#D96F00',
     outputFile: './profile-card-light.svg',
   },
 ];
@@ -243,6 +246,8 @@ function buildHtml(templateStr: string, theme: Theme, env: string, projects: Rep
     .replaceAll('{{BORDER_INNER}}', theme.borderInner)
     .replaceAll('{{BAR_BG}}', theme.barBg)
     .replaceAll('{{ACCENT_BULLET}}', theme.accentBullet)
+    .replaceAll('{{ACCENT}}', theme.accent)
+    .replaceAll('{{DATE}}', new Date().toISOString().slice(0, 10))
     .replaceAll('{{ENVIRONMENT}}', env)
     .replace('{{PROJECTS}}', projectsHtml)
     .replace('{{LANG_BAR}}', langBarHtml)
@@ -257,11 +262,11 @@ async function main() {
   const repos = allRepos.filter(r => whitelist.size === 0 || whitelist.has(r.name.toLowerCase()));
   repos.sort((a, b) => new Date(b.pushed_at).getTime() - new Date(a.pushed_at).getTime());
 
-  if (repos.length < 4) {
-    throw new Error(`Data incomplete: found only ${repos.length} whitelisted repositories, minimum 4 required.`);
+  if (repos.length < 5) {
+    throw new Error(`Data incomplete: found only ${repos.length} whitelisted repositories, minimum 5 required.`);
   }
 
-  const topProjects = repos.slice(0, 4);
+  const topProjects = repos.slice(0, 5);
   const repoLangs = await Promise.all(repos.map(r => fetchRepoLangs(config.username, r.name)));
   const topLangs = calculateLangStats(repoLangs, 6);
   // Label cards with the dominant real language instead of GitHub's primary (e.g. mdsvex, Flutter's C++).
@@ -284,14 +289,14 @@ async function main() {
 
     let svg = await satori(vnode, {
       width: 800,
-      height: 330,
+      height: 370,
       fonts: [
         { name: 'JetBrains Mono', data: font400, weight: 400, style: 'normal' },
         { name: 'JetBrains Mono', data: font600, weight: 600, style: 'normal' },
       ],
     });
 
-    svg = svg.replace('<svg width="800" height="330"', '<svg width="100%" height="100%"');
+    svg = svg.replace('<svg width="800" height="370"', '<svg width="100%" height="100%"');
     writeFileSync(theme.outputFile, svg);
 
     const written = readFileSync(theme.outputFile, 'utf-8');

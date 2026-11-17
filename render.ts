@@ -17,7 +17,7 @@ interface Repo {
 
 interface LangStat {
   name: string;
-  count: number;
+  count: number; // sum of per-repo language shares
   pct: number;
   color: string;
 }
@@ -92,12 +92,16 @@ function loadWhitelist(path: string): Set<string> {
   return set;
 }
 
-async function fetchRepos(username: string): Promise<Repo[]> {
+function ghHeaders(): Record<string, string> {
   const headers: Record<string, string> = { 'User-Agent': 'dotsem-readme-render' };
   if (process.env.GITHUB_TOKEN) {
     headers['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
   }
-  const res = await fetch(`https://api.github.com/users/${username}/repos?sort=pushed&per_page=100`, { headers });
+  return headers;
+}
+
+async function fetchRepos(username: string): Promise<Repo[]> {
+  const res = await fetch(`https://api.github.com/users/${username}/repos?sort=pushed&per_page=100`, { headers: ghHeaders() });
   if (!res.ok) {
     throw new Error(`GitHub API request failed with status: ${res.status} ${res.statusText}`);
   }
@@ -108,27 +112,50 @@ async function fetchRepos(username: string): Promise<Repo[]> {
   return data as Repo[];
 }
 
-function calculateLangStats(repos: Repo[], limit = 6): LangStat[] {
-  const counts: Record<string, number> = {};
-  let total = 0;
+// Markup, build files and content that aren't "languages I write".
+const IGNORED_LANGS = new Set(['HTML', 'CSS', 'CMake', 'Makefile', 'Just', 'Dockerfile', 'Mermaid', 'mdsvex', 'JavaScript']);
+// Generated platform runners in Flutter projects; ignored when the repo contains Dart.
+const FLUTTER_RUNNER_LANGS = new Set(['C++', 'C', 'Swift', 'Kotlin', 'Objective-C']);
 
-  for (const r of repos) {
-    if (!r.language || r.language === 'HTML' || r.language === 'CSS') continue;
-    counts[r.language] = (counts[r.language] || 0) + 1;
-    total++;
+async function fetchRepoLangs(username: string, repo: string): Promise<Record<string, number>> {
+  const res = await fetch(`https://api.github.com/repos/${username}/${repo}/languages`, { headers: ghHeaders() });
+  if (!res.ok) {
+    throw new Error(`GitHub languages request for ${repo} failed with status: ${res.status} ${res.statusText}`);
+  }
+  return res.json();
+}
+
+function keptLangs(langs: Record<string, number>): [string, number][] {
+  const isFlutter = 'Dart' in langs;
+  return Object.entries(langs).filter(
+    ([name]) => !IGNORED_LANGS.has(name) && !(isFlutter && FLUTTER_RUNNER_LANGS.has(name)),
+  );
+}
+
+// Each repo has equal weight, split across its languages by byte share,
+// so one huge repo (or generated code) can't dominate the chart.
+function calculateLangStats(repoLangs: Record<string, number>[], limit = 6): LangStat[] {
+  const counts: Record<string, number> = {};
+
+  for (const langs of repoLangs) {
+    const kept = keptLangs(langs);
+    const repoTotal = kept.reduce((sum, [, bytes]) => sum + bytes, 0);
+    if (repoTotal === 0) continue;
+    for (const [name, bytes] of kept) {
+      counts[name] = (counts[name] || 0) + bytes / repoTotal;
+    }
   }
 
-  if (total === 0) return [];
+  const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, limit);
+  // Percentages are relative to the languages shown, so the bar is always full.
+  const shownTotal = top.reduce((sum, [, c]) => sum + c, 0);
 
-  const stats = Object.entries(counts).map(([name, count]) => ({
+  return top.map(([name, count]) => ({
     name,
     count,
-    pct: Math.round((count / total) * 100),
+    pct: Math.round((count / shownTotal) * 100),
     color: langColors[name] || '#8b949e',
   }));
-
-  stats.sort((a, b) => b.count - a.count);
-  return stats.slice(0, limit);
 }
 
 function toVNode(node: any): any {
@@ -179,8 +206,13 @@ function buildHtml(templateStr: string, theme: Theme, env: string, projects: Rep
     `;
   }).join('');
 
+  // Cumulative rounding: segment widths always sum to exactly 288px.
+  const shownTotal = langs.reduce((sum, l) => sum + l.count, 0);
+  let cum = 0;
   const langBarHtml = langs.map(l => {
-    const widthPx = Math.max(4, Math.round((l.pct / 100) * 288));
+    const start = Math.round((cum / shownTotal) * 288);
+    cum += l.count;
+    const widthPx = Math.round((cum / shownTotal) * 288) - start;
     return `<div style="display: flex; width: ${widthPx}px; height: 8px; background-color: ${l.color};"></div>`;
   }).join('');
 
@@ -230,7 +262,13 @@ async function main() {
   }
 
   const topProjects = repos.slice(0, 4);
-  const topLangs = calculateLangStats(repos, 6);
+  const repoLangs = await Promise.all(repos.map(r => fetchRepoLangs(config.username, r.name)));
+  const topLangs = calculateLangStats(repoLangs, 6);
+  // Label cards with the dominant real language instead of GitHub's primary (e.g. mdsvex, Flutter's C++).
+  repos.forEach((r, i) => {
+    const kept = keptLangs(repoLangs[i]).sort((a, b) => b[1] - a[1]);
+    if (kept.length) r.language = kept[0][0];
+  });
   if (topLangs.length < 6) {
     throw new Error(`Data incomplete: found only ${topLangs.length} languages across whitelisted repositories, expected 6.`);
   }
